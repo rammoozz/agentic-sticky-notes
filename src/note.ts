@@ -1,9 +1,9 @@
 import { z } from 'zod'
-import { KINDS, SCOPES, type Note } from './types.ts'
+import { KINDS, NOTE_ID, SCOPES, type Note } from './types.ts'
 
 export const NoteSchema = z.object({
   v: z.literal(1),
-  id: z.string().regex(/^n_[a-z0-9]{5}$/),
+  id: z.string().regex(NOTE_ID),
   text: z.string().trim().min(1).max(280),
   kind: z.enum(KINDS),
   scope: z.enum(SCOPES),

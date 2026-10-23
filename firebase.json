@@ -1,10 +1,8 @@
 {
   "hosting": {
     "public": "docs",
-    "predeploy": ["npm run pack"],
-    "ignore": ["**/.*"],
-    "headers": [
-      { "source": "/marketplace.json", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+    "ignore": [
+      "**/.*"
     ]
   }
 }

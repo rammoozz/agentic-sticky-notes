@@ -20,10 +20,10 @@ Notes show in a pane beside the chat in Claude Code. They come back into Claude'
 
 Needs Node 22.18 or later. Tested with Claude Code 2.1.309. Mods are new and can change between Claude Code releases. If the mod stops loading, everything except the pane keeps working.
 
-Install from the hosted site, in one line at the Claude Code prompt:
+Install from GitHub, in one line at the Claude Code prompt:
 
 ```sh
-/plugin install sticky-notes --marketplace https://agentic-sticky.web.app/marketplace.json
+/plugin install sticky-notes --marketplace rammoozz/agentic-sticky-notes
 ```
 
 Or load a local copy for one session:
@@ -57,4 +57,4 @@ claude plugin test     # mod tests in hooks/*.test.tsx
 
 `dist/sticky.js` is committed so installs need no `npm install`. Run `npm run build` before you commit.
 
-The site in `docs/` is the Firebase Hosting site `agentic-sticky`. `firebase deploy --only hosting` runs `npm run pack` first, which zips the plugin into `docs/sticky-notes.zip` and writes `docs/marketplace.json` pointing at it. `STICKY_NOTES_HOME` moves the notes folder, which is handy for tests.
+The landing page in `docs/` is the Firebase Hosting site `agentic-sticky` (https://agentic-sticky.web.app). Deploy it with `firebase deploy --only hosting`. Bump `version` in `.claude-plugin/plugin.json` when the plugin changes, or installed copies won't update. `STICKY_NOTES_HOME` moves the notes folder, which is handy for tests.

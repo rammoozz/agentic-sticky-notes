@@ -66,6 +66,8 @@ test('bad input and unknown ids are NoteErrors', async () => {
   await assert.rejects(pin('   '), NoteError)
   await assert.rejects(updateNote(project, 'n_zzzzz', { done: true }), NoteError)
   await assert.rejects(deleteNote(project, 'n_zzzzz'), NoteError)
+  await assert.rejects(deleteNote(project, '../other/n_zzzzz'), NoteError)
+  await assert.rejects(updateNote(project, '../../etc/passwd', { done: true }), NoteError)
 })
 
 test('a broken file is skipped, not fatal', async () => {

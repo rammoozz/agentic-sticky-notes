@@ -4,11 +4,11 @@ import { z } from 'zod'
 import pkg from '../package.json' with { type: 'json' }
 import { NoteSchema } from './note.ts'
 import { addNote, deleteNote, listNotes, NoteError, noteLine, projectRoot, updateNote } from './store.ts'
-import { isVisible, KINDS, SCOPES, type Note } from './types.ts'
+import { isVisible, KINDS, NOTE_ID, SCOPES, type Note } from './types.ts'
 
 // The mod stamps the live session id here. Other MCP apps leave it empty.
 const session = z.string().optional().describe('Filled in automatically. Leave empty.')
-const id = z.string().describe('The note id, e.g. n_k3f9x')
+const id = z.string().regex(NOTE_ID).describe('The note id, e.g. n_k3f9x')
 const text = z.string().trim().min(1).max(280)
 const actions = z
   .array(z.string().trim().min(1).max(40))

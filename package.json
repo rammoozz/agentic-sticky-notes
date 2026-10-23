@@ -1,6 +1,6 @@
 {
   "name": "sticky-notes",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "description": "Sticky notes Claude pins while it works: MCP tools, a sticky CLI, a skill, and a pane beside the chat",
@@ -14,8 +14,7 @@
     "build": "esbuild src/cli.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/sticky.js --minify-whitespace --minify-syntax --legal-comments=none --log-level=warning \"--banner:js=#!/usr/bin/env node\nimport { createRequire } from 'node:module'; const require = createRequire(import.meta.url);\"",
     "typecheck": "tsc --noEmit && tsc -p hooks --noEmit",
     "test": "node --test \"src/**/*.spec.ts\"",
-    "check": "npm run typecheck && npm test && npm run build",
-    "pack": "npm run build && node scripts/pack.mjs"
+    "check": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",

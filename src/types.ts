@@ -8,6 +8,9 @@ export type { Kind, Note, Scope }
 export const KINDS = ['human', 'todo', 'decision', 'remember'] as const satisfies readonly Kind[]
 export const SCOPES = ['project', 'chat'] as const satisfies readonly Scope[]
 
+/** "n_" + 5 base36 chars. Ids become file names, so nothing else is accepted. */
+export const NOTE_ID = /^n_[a-z0-9]{5}$/
+
 // Stops compiling if types/index.d.ts gains a kind or scope these lists lack.
 const allKinds: [Exclude<Kind, (typeof KINDS)[number]>] extends [never] ? true : false = true
 const allScopes: [Exclude<Scope, (typeof SCOPES)[number]>] extends [never] ? true : false = true

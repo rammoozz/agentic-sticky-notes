@@ -1,7 +1,7 @@
 {
   "name": "sticky-notes",
   "displayName": "Sticky Notes",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Sticky notes Claude pins while it works, like when it needs you: MCP tools, a sticky CLI, a skill, and a pane beside the chat",
   "author": {
     "name": "Robert Khayat"
@@ -21,5 +21,6 @@
         "mcp"
       ]
     }
-  }
+  },
+  "repository": "https://github.com/rammoozz/agentic-sticky-notes"
 }

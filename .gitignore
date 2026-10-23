@@ -1,6 +1,4 @@
 node_modules/
 # Written by Claude Code for the build that loads the mod
 .claude-plugin/types/
-docs/sticky-notes.zip
-docs/marketplace.json
 .firebase/

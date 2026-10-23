@@ -5,7 +5,7 @@ import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { z } from 'zod'
 import { NoteSchema } from './note.ts'
-import { KINDS, type Kind, type Note, type Scope } from './types.ts'
+import { KINDS, NOTE_ID, type Kind, type Note, type Scope } from './types.ts'
 
 export class NoteError extends Error {}
 
@@ -27,7 +27,11 @@ export function projectRoot(dir: string): string {
 
 /** Same naming as ~/.claude/projects/: every non-letter, non-digit becomes "-". */
 const folder = (project: string) => join(home(), project.replace(/[^A-Za-z0-9]/g, '-'))
-const fileOf = (project: string, id: string) => join(folder(project), id + '.json')
+/** Ids become file names, so anything but the real id shape (e.g. "../x") is refused. */
+function fileOf(project: string, id: string): string {
+  if (!NOTE_ID.test(id)) throw new NoteError('Not a note id: ' + id + '. Ids look like n_k3f9x.')
+  return join(folder(project), id + '.json')
+}
 
 const exists = (path: string) =>
   access(path).then(
