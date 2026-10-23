@@ -1,0 +1,25 @@
+{
+  "name": "sticky-notes",
+  "displayName": "Sticky Notes",
+  "version": "0.2.0",
+  "description": "Sticky notes Claude pins while it works, like when it needs you: MCP tools, a sticky CLI, a skill, and a pane beside the chat",
+  "author": {
+    "name": "Robert Khayat"
+  },
+  "license": "MIT",
+  "keywords": [
+    "notes",
+    "memory",
+    "mcp"
+  ],
+  "types": "./types/index.d.ts",
+  "mcpServers": {
+    "notes": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/dist/sticky.js",
+        "mcp"
+      ]
+    }
+  }
+}

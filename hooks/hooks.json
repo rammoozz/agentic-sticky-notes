@@ -1,0 +1,11 @@
+{
+  "description": "The sticky-notes pane, and the open notes handed to Claude at session start",
+  "modules": ["./pane.tsx"],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/dist/sticky.js\" context" }]
+      }
+    ]
+  }
+}

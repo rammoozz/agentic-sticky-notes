@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sticky Notes for Claude Code</title>
+  <meta name="description" content="A Claude Code plugin. Claude pins notes beside the chat, and leaves you one when it needs you.">
+  <meta property="og:title" content="Sticky Notes for Claude Code">
+  <meta property="og:description" content="Claude leaves you a note when it needs you.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://agentic-sticky.web.app/">
+  <meta name="theme-color" content="#f7f7f8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='5' fill='%23f5d90a' transform='rotate(-4 16 16)'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="wrap nav">
+    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>Sticky Notes</a>
+    <nav class="nav-links" aria-label="Main">
+      <a class="btn btn-primary" href="#install">Install</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="wrap hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">Claude leaves you a note when it <span class="mark-text">needs you.</span></h1>
+      <p>Sticky notes for Claude Code, pinned beside the chat.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#install">Install</a>
+      </div>
+      <figure class="hero-shot">
+        <div class="term">
+          <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>claude · shop-api</span></div>
+          <!-- Three frames of a real Claude Code 2.1.309 session, replayed. One line about the author's own settings was removed. -->
+          <div class="reel" aria-hidden="true">
+            <pre class="capture frame f1">                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                </span><span style="color:#999999;background:#262626">✕</span><span style="background:#262626"> </span>
+<span style="color:#d77757">▗</span><span style="color:#000000;background:#d77757"> ▗   ▖ </span><span style="color:#d77757">▖</span>  <span class="b">Claude Code</span> <span style="color:#999999">v2.1.309</span>                                                    <span class="d" style="background:#262626">│</span><span class="b" style="background:#262626">2 open</span><span style="background:#262626">                                                            </span>
+ <span style="background:#d77757">       </span>   <span style="color:#999999">Haiku 5.5 · Claude Max</span>                                                  <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+ <span style="color:#d77757">▘▘   ▝▝</span>   <span style="color:#999999">/private/tmp/shop-api</span>                                                   <span class="d" style="background:#262626">│</span><span style="color:#999999;background:#262626">PROJECT</span><span style="background:#262626">                                                           </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#46a758;background:#262626">                                                                  </span>
+                                                                                    <span style="color:#46a758;background:#262626">▎</span><span style="color:#999999;background:#262626">DECISION · n_trap3</span><span style="background:#262626">                                  done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#46a758;background:#262626"> </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#46a758;background:#262626">▎</span><span style="background:#262626">keep JWT, no sessions table                                     </span><span style="color:#46a758;background:#262626"> </span>
+<span style="color:#999999;background:#373737">❯ </span>                                                                                 <span class="d" style="background:#262626">│</span><span style="color:#46a758;background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">▎</span><span style="color:#999999;background:#262626">REMEMBER · n_e69pg</span><span style="background:#262626">                                  done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#05a2c2;background:#262626"> </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">▎</span><span style="background:#262626">staging db is read-only                                         </span><span style="color:#05a2c2;background:#262626"> </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+<span style="color:#888888">──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+❯ refresh races with logout, see src/refresh.ts and src/logout.ts. rate limiting can wait. I have to log in to the Stripe dashboard myself before
+<span style="color:#888888">──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></pre>
+            <pre class="capture frame f2">                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                </span><span style="color:#999999;background:#262626">✕</span><span style="background:#262626"> </span>
+<span style="color:#d77757">▗</span><span style="color:#000000;background:#d77757"> ▗   ▖ </span><span style="color:#d77757">▖</span>  <span class="b">Claude Code</span> <span style="color:#999999">v2.1.309</span>                                                    <span class="d" style="background:#262626">│</span><span class="b" style="background:#262626">3 open</span><span style="background:#262626">                                                            </span>
+ <span style="background:#d77757">       </span>   <span style="color:#999999">Haiku 5.5 · Claude Max</span>                                                  <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+ <span style="color:#d77757">▘▘   ▝▝</span>   <span style="color:#999999">/private/tmp/shop-api</span>                                                   <span class="d" style="background:#262626">│</span><span style="color:#999999;background:#262626">PROJECT</span><span style="background:#262626">                                                           </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#f5d90a;background:#262626">                                                                  </span>
+                                                                                    <span style="color:#f5d90a;background:#262626">▎</span><span style="color:#999999;background:#262626">TODO · n_63den</span><span style="background:#262626">                                      done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#f5d90a;background:#262626"> </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#f5d90a;background:#262626">▎</span><span style="background:#262626">Refresh/logout race: refresh does                               </span><span style="color:#46a758;background:#262626"> </span>
+<span style="color:#999999;background:#373737">❯ </span><span style="color:#ffffff;background:#373737">refresh races with logout, see src/refresh.ts and src/logout.ts. rate limiting </span><span style="background:#373737">  </span><span class="d" style="background:#262626">│</span><span style="color:#46a758;background:#262626">                                                                  </span>
+<span style="background:#373737">  </span><span style="color:#ffffff;background:#373737">can wait. I have to log in to the Stripe dashboard myself before you can read </span><span style="background:#373737">   </span><span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">                                                                  </span>
+<span style="background:#373737">  </span><span style="color:#ffffff;background:#373737">the webhook secret. pin notes, don&#x27;t change code yet.</span><span style="background:#373737">                            </span><span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">▎</span><span style="color:#999999;background:#262626">REMEMBER · n_e69pg</span><span style="background:#262626">                                  done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#05a2c2;background:#262626"> </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">▎</span><span style="background:#262626">staging db is read-only                                         </span><span style="color:#05a2c2;background:#262626"> </span>
+<span style="color:#999999">⏺</span> Reading <span class="b">2</span> files, calling codebase-memory-mcp, plugin:sticky-notes:notes <span class="b">5</span> times… <span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">                                                                  </span>
+<span style="color:#999999">  ⎿  src/logout.ts</span>                                                                 <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+<span style="color:#888888">──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+<span style="color:#999999">❯ </span>
+<span style="color:#888888">──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></pre>
+            <pre class="capture frame f3 last">                                                                                   <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                </span><span style="color:#999999;background:#262626">✕</span><span style="background:#262626"> </span>
+<span style="color:#d77757">▗</span><span style="color:#000000;background:#d77757"> ▗   ▖ </span><span style="color:#d77757">▖</span>  <span class="b">Claude Code</span> <span style="color:#999999">v2.1.309</span>                                                    <span class="d" style="background:#262626">│</span><span class="b" style="background:#262626">4 open · 1 need you</span><span style="background:#262626">                                               </span>
+ <span style="background:#d77757">       </span>   <span style="color:#999999">Haiku 5.5 · Claude Max</span>                                                  <span class="d" style="background:#262626">│</span><span style="background:#262626">                                                                  </span>
+ <span style="color:#d77757">▘▘   ▝▝</span>   <span style="color:#999999">/private/tmp/shop-api</span>                                                   <span class="d" style="background:#262626">│</span><span style="color:#999999;background:#262626">PROJECT</span><span style="background:#262626">                                                           </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#e5484d;background:#262626">                                                                  </span>
+                                                                                    <span style="color:#e5484d;background:#262626">▎</span><span style="color:#999999;background:#262626">NEEDS YOU · n_ewkrt</span><span style="background:#262626">                                 done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#e5484d;background:#262626"> </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#e5484d;background:#262626">▎</span><span style="background:#262626">Log in to Stripe dashboard and share the webhook secret so I can</span><span style="color:#e5484d;background:#262626"> </span>
+<span style="color:#999999;background:#373737">❯ </span><span style="color:#ffffff;background:#373737">refresh races with logout, see src/refresh.ts and src/logout.ts. rate limiting </span><span style="background:#373737">  </span><span class="d" style="background:#262626">│</span><span style="color:#e5484d;background:#262626">▎</span><span style="background:#262626">read it.                                                        </span><span style="color:#e5484d;background:#262626"> </span>
+<span style="background:#373737">  </span><span style="color:#ffffff;background:#373737">can wait. I have to log in to the Stripe dashboard myself before you can read </span><span style="background:#373737">   </span><span class="d" style="background:#262626">│</span><span style="color:#e5484d;background:#262626">                                                                  </span>
+<span style="background:#373737">  </span><span style="color:#ffffff;background:#373737">the webhook secret. pin notes, don&#x27;t change code yet.</span><span style="background:#373737">                            </span><span class="d" style="background:#262626">│</span><span style="color:#f5d90a;background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#f5d90a;background:#262626">▎</span><span style="color:#999999;background:#262626">TODO · n_63den</span><span style="background:#262626">                                      done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#f5d90a;background:#262626"> </span>
+  <span style="color:#999999">Read </span><span class="b" style="color:#999999">2</span><span style="color:#999999"> files, called codebase-memory-mcp, plugin:sticky-notes:notes </span><span class="b" style="color:#999999">5</span><span style="color:#999999"> times </span>     <span class="d" style="background:#262626">│</span><span style="color:#f5d90a;background:#262626">▎</span><span style="background:#262626">Refresh/logout race: refresh does find, sign, replace. Logout   </span><span style="color:#f5d90a;background:#262626"> </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#f5d90a;background:#262626">▎</span><span style="background:#262626">deletes mid-flight, so the token can come back or the new one   </span><span style="color:#f5d90a;background:#262626"> </span>
+<span style="color:#ffffff">⏺</span> Pinned two notes. No code changed.                                               <span class="d" style="background:#262626">│</span><span style="color:#f5d90a;background:#262626">▎</span><span style="background:#262626">survives logout.                                                </span><span style="color:#f5d90a;background:#262626"> </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#f5d90a;background:#262626">                                                                  </span>
+  - Refresh/logout race: <span style="color:#b1b9f9">refresh</span> does find → sign → replace, <span style="color:#b1b9f9">logout</span> does delete. If<span class="d" style="background:#262626">│</span><span style="color:#46a758;background:#262626">                                                                  </span>
+    logout lands mid-refresh, the token can come back or the new one survives      <span class="d" style="background:#262626">│</span><span style="color:#46a758;background:#262626">▎</span><span style="color:#999999;background:#262626">DECISION · n_trap3</span><span style="background:#262626">                                  done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#46a758;background:#262626"> </span>
+    logout.                                                                        <span class="d" style="background:#262626">│</span><span style="color:#46a758;background:#262626">▎</span><span style="background:#262626">keep JWT, no sessions table                                     </span><span style="color:#46a758;background:#262626"> </span>
+  - Stripe: waiting on you to log in and share the webhook secret.                 <span class="d" style="background:#262626">│</span><span style="color:#46a758;background:#262626">                                                                  </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">                                                                  </span>
+<span style="color:#999999">✻</span> <span style="color:#999999">Sautéed for 20s · done 12:15 PM</span>                                                  <span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">▎</span><span style="color:#999999;background:#262626">REMEMBER · n_e69pg</span><span style="background:#262626">                                  done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#05a2c2;background:#262626"> </span>
+                                                                                   <span class="d" style="background:#262626">│</span><span style="color:#05a2c2;background:#262626">▎</span><span style="background:#262626">staging db is read-only                                         </span><span style="color:#05a2c2;background:#262626"> </span>
+<span style="color:#888888">──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+❯ 
+<span style="color:#888888">──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></pre>
+          </div>
+        </div>
+        <figcaption>A real session, replayed.</figcaption>
+        <p class="sr-only">The user asks Claude about a token refresh race and says they must log in to Stripe themselves. Claude pins notes, and the Sticky notes pane beside the chat goes from two notes to four, with a red Needs you note on top: log in to Stripe.</p>
+      </figure>
+    </section>
+
+    <section class="wrap" aria-labelledby="kinds-title">
+      <h2 id="kinds-title" class="reveal">Four kinds. One is for you.</h2>
+      <div class="kinds reveal">
+        <div class="term pane-crop">
+          <pre aria-hidden="true"><span style="color:#999999;background:#262626">PROJECT</span><span style="background:#262626">                                                           </span>
+<span style="color:#e5484d;background:#262626">                                                                  </span>
+<span style="color:#e5484d;background:#262626">▎</span><span style="color:#999999;background:#262626">NEEDS YOU · n_ewkrt</span><span style="background:#262626">                                 done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#e5484d;background:#262626"> </span>
+<span style="color:#e5484d;background:#262626">▎</span><span style="background:#262626">Log in to Stripe dashboard and share the webhook secret so I can</span><span style="color:#e5484d;background:#262626"> </span>
+<span style="color:#e5484d;background:#262626">▎</span><span style="background:#262626">read it.                                                        </span><span style="color:#e5484d;background:#262626"> </span>
+<span style="color:#e5484d;background:#262626">                                                                  </span>
+<span style="color:#f5d90a;background:#262626">                                                                  </span>
+<span style="color:#f5d90a;background:#262626">▎</span><span style="color:#999999;background:#262626">TODO · n_63den</span><span style="background:#262626">                                      done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#f5d90a;background:#262626"> </span>
+<span style="color:#f5d90a;background:#262626">▎</span><span style="background:#262626">Refresh/logout race: refresh does find, sign, replace. Logout   </span><span style="color:#f5d90a;background:#262626"> </span>
+<span style="color:#f5d90a;background:#262626">▎</span><span style="background:#262626">deletes mid-flight, so the token can come back or the new one   </span><span style="color:#f5d90a;background:#262626"> </span>
+<span style="color:#f5d90a;background:#262626">▎</span><span style="background:#262626">survives logout.                                                </span><span style="color:#f5d90a;background:#262626"> </span>
+<span style="color:#f5d90a;background:#262626">                                                                  </span>
+<span style="color:#46a758;background:#262626">                                                                  </span>
+<span style="color:#46a758;background:#262626">▎</span><span style="color:#999999;background:#262626">DECISION · n_trap3</span><span style="background:#262626">                                  done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#46a758;background:#262626"> </span>
+<span style="color:#46a758;background:#262626">▎</span><span style="background:#262626">keep JWT, no sessions table                                     </span><span style="color:#46a758;background:#262626"> </span>
+<span style="color:#46a758;background:#262626">                                                                  </span>
+<span style="color:#05a2c2;background:#262626">                                                                  </span>
+<span style="color:#05a2c2;background:#262626">▎</span><span style="color:#999999;background:#262626">REMEMBER · n_e69pg</span><span style="background:#262626">                                  done  </span><span style="color:#999999;background:#262626">delete</span><span style="color:#05a2c2;background:#262626"> </span>
+<span style="color:#05a2c2;background:#262626">▎</span><span style="background:#262626">staging db is read-only                                         </span><span style="color:#05a2c2;background:#262626"> </span></pre>
+        </div>
+        <dl class="legend">
+          <div style="--bar:#e5484d"><dt>Needs you</dt><dd>Claude is waiting on you. Your terminal pings, and you answer with one press.</dd></div>
+          <div style="--bar:#f5d90a"><dt>Todo</dt><dd>Work pushed to later.</dd></div>
+          <div style="--bar:#46a758"><dt>Decision</dt><dd>What was chosen.</dd></div>
+          <div style="--bar:#05a2c2"><dt>Remember</dt><dd>Rules and facts to keep.</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="wrap" aria-labelledby="compact-title">
+      <h2 id="compact-title" class="reveal">Still there after <code>/compact</code>.</h2>
+      <figure class="reveal">
+        <div class="term">
+          <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>what Claude reads at session start</span></div>
+          <pre class="wrap-lines">Sticky notes for shop-api (sticky-notes plugin). Keep them in mind. When one is handled, mark it done with note_update.
+- [human n_ewkrt] Log in to Stripe dashboard and share the webhook secret so I can read it.
+- [todo n_63den] Refresh/logout race: refresh does find, sign, replace. Logout deletes mid-flight, so the token can come back or the new one survives logout.
+- [decision n_trap3] keep JWT, no sessions table
+- [remember n_e69pg] staging db is read-only</pre>
+        </div>
+      </figure>
+    </section>
+
+    <section class="wrap" aria-labelledby="ways-title">
+      <h2 id="ways-title" class="reveal">Plain files. Any terminal.</h2>
+      <figure class="reveal">
+        <div class="term">
+          <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>~/code/billing</span></div>
+          <pre><span class="prompt">$</span> sticky ls
+billing · 4 open
+  human     n_vejgn  approve the prod deploy
+  todo      n_sr71y  add retries to the invoice webhook
+  decision  n_w8cls  keep Postgres, no Redis for now
+  remember  n_435qm  prices are stored in cents
+
+<span class="prompt">$</span> sticky done n_sr71y
+done [todo n_sr71y] add retries to the invoice webhook
+
+<span class="prompt">$</span> sticky add &quot;rotate the Stripe key&quot; --kind human
+pinned [human n_x0jvs] rotate the Stripe key</pre>
+        </div>
+        <figcaption>One JSON file per note. Also an MCP server for any MCP app.</figcaption>
+      </figure>
+    </section>
+
+    <section class="wrap install" id="install" aria-labelledby="install-title">
+      <h2 id="install-title" class="reveal">Install.</h2>
+      <div class="install-box reveal">
+        <div class="cmd"><code>/plugin install sticky-notes --marketplace https://agentic-sticky.web.app/marketplace.json</code><button class="copy" type="button" data-copy="/plugin install sticky-notes --marketplace https://agentic-sticky.web.app/marketplace.json" aria-label="Copy install command"><svg aria-hidden="true" focusable="false" class="icon-copy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/></svg><svg aria-hidden="true" focusable="false" class="icon-done" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg><span class="label">Copy</span></button></div>
+      </div>
+      <p class="note">Paste it into Claude Code. Needs Node 22.18+.</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>Sticky Notes for Claude Code</span>
+      <span>MIT license</span>
+      <span>Made by Robert Khayat</span>
+    </div>
+  </footer>
+
+  <script>
+    for (const button of document.querySelectorAll('.copy')) {
+      button.addEventListener('click', async () => {
+        const label = button.querySelector('.label')
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy ?? '')
+          button.classList.add('done')
+          label.textContent = 'Copied'
+          setTimeout(() => {
+            button.classList.remove('done')
+            label.textContent = 'Copy'
+          }, 1600)
+        } catch {
+          const range = document.createRange()
+          range.selectNodeContents(button.previousElementSibling)
+          getSelection()?.removeAllRanges()
+          getSelection()?.addRange(range)
+          label.textContent = 'Selected'
+        }
+      })
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,466 @@
+---
+title: Sticky notes Claude pins while it works
+status: draft
+date: 2026-10-23
+---
+
+# Sticky notes Claude pins while it works
+
+## What you see
+
+You tell Claude *"keep JWT, no sessions table. Rate limiting can wait. Staging db is read-only."* and keep talking. Claude calls `note_add` three times as it goes, and three colored notes show up in a **Sticky notes** pane beside the chat (see the canvas): a green **decision**, a yellow **todo**, and a blue **remember** that only matters in this chat. Forty minutes and one `/compact` later, Claude still knows all three, because the open notes are fed back to it when the session starts or compacts. When it finishes the rate limit work, it marks that todo done.
+
+The same notes are plain files on disk. From any terminal, `sticky ls` prints them and `sticky done n_k3f9x` checks one off; the pane picks that up within 3 seconds. The MCP server also works in other MCP apps (Claude Desktop, Cursor), where you get the tools without the pane.
+
+## Done means
+
+- Claude pins a **human** note whenever it needs you (a choice only you can make, a login or key, an approval, a manual step), sends a terminal notification for it, and keeps going with a safe default when it can. Each person sets their own rule for when to pin in `/config`.
+- Claude also pins notes on its own, without being asked, when a decision is made, a rule or preference is stated, work is pushed to later, or a question is left open. It also pins on "note that", "remember", "don't forget".
+- A note shows in the pane within a second of `note_add`, and within 3 seconds of a change made from the CLI or another session.
+- **Project** notes show in every session in that repo. **Chat** notes show only in the chat that pinned them. Claude picks per note.
+- After `/compact`, `/clear`, a resume, or a new session, Claude's context starts with the open notes that apply.
+- `sticky add | ls | done | edit | rm` works from any terminal, and `sticky ls --json` prints the same notes the pane shows.
+- Two sessions and the CLI writing at once never lose a note or leave a broken file. Two edits to the same note at the same moment: the last one wins.
+- If mods break or are off, the MCP tools, CLI, skill and context hook all still work. Only the pane goes away.
+- `npm run check` (strict `tsc`, tests, build) and `claude plugin validate . --strict` pass.
+
+**Not in scope:** floating desktop note windows, sync across machines, sharing, typing or editing notes inside the pane, drag to reorder, rich text, a board for every project at once.
+
+## Approach
+
+<Callout tone="decision" title="One plugin: MCP + CLI + skill write the notes, a thin mod only draws them">
+The repo is one Claude Code plugin named `sticky-notes`. All the real logic lives in one small TypeScript core (`src/`) that reads and writes one JSON file per note. Three doors use that core: the **MCP server** (Claude's tools, in any MCP app), the **`sticky` CLI** (you, scripts, Claude via Bash, and the context hook), and the **skill** (tells Claude when to pin). The core is bundled into one file, `dist/sticky.js`, so the plugin needs no `npm install` after it is installed.
+
+Mods are new, so the mod (`hooks/pane.ts`) does only three things: it draws the pane, it adds a `/notes` command, and it stamps the live session id onto note tool calls. It never touches files. It reads and writes through the plugin's own MCP server with `$.mcp.call`, so there is exactly one code path for notes. Mods can call MCP and run CLIs, so nothing here is Claude Code only except the pane.
+</Callout>
+
+<Columns>
+<Column label="Tools from MCP, pane from a mod (chosen)">
+Claude's tools come from a normal MCP server, so they work in Claude Code, Claude Desktop, Cursor and anything else that speaks MCP. The mod is a view on top. If a Claude Code release changes the mods API, only the pane breaks.
+</Column>
+<Column label="Tools registered by the mod itself">
+`$.tool.register` would give the mod the exact session id and cwd for free. But the tools would exist only inside Claude Code, and they would duplicate the MCP tools for every other app. Skipped.
+</Column>
+</Columns>
+
+## How the pieces fit
+
+<Diagram
+  html={`
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1fr) 40px minmax(0,1fr);gap:10px;align-items:stretch">
+  <div class="diagram-panel">
+    <strong>Writes</strong>
+    <div class="diagram-card">Claude: MCP tool note_add / note_update / note_delete</div>
+    <div class="diagram-card">Claude via Bash: sticky add</div>
+    <div class="diagram-card">You in a terminal: sticky done n_k3f9x</div>
+    <div class="diagram-card">Pane buttons: done, undo, delete (through MCP)</div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center"><span class="diagram-muted">→</span></div>
+  <div class="diagram-panel">
+    <strong>One store (src/store.ts)</strong>
+    <div class="diagram-card">~/.sticky-notes/&lt;project-key&gt;/&lt;id&gt;.json</div>
+    <div class="diagram-card">one file per note, write tmp then rename</div>
+    <div class="diagram-card">project = git root of CLAUDE_PROJECT_DIR or cwd</div>
+    <span class="diagram-pill">zod checks every read</span>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center"><span class="diagram-muted">→</span></div>
+  <div class="diagram-panel">
+    <strong>Reads</strong>
+    <div class="diagram-card">Pane: $.mcp.call note_list after each note tool call + every 3s</div>
+    <div class="diagram-card">SessionStart hook: sticky context → Claude's context</div>
+    <div class="diagram-card">Claude: note_list when it wants to check</div>
+    <div class="diagram-card">You: sticky ls</div>
+  </div>
+</div>
+<div class="diagram-muted" style="margin-top:10px">Everything outside the pane runs without mods. The mod only adds the pane, /notes, and the live session id.</div>
+`}
+/>
+
+## Choices that are hard to change later
+
+These are what other code, permission rules and saved files will depend on, so they are fixed now.
+
+| Choice | Value | Why |
+| :- | :- | :- |
+| Plugin / server / tool names | plugin `sticky-notes`, server `notes`, tools `note_add`, `note_list`, `note_update`, `note_delete` | Claude Code names them `mcp__plugin_sticky-notes_notes__note_add`. Permission rules, the skill and the mod matcher all use that name. |
+| Note id | `n_` + 5 lowercase base36 chars, e.g. `n_k3f9x` | Short enough for you and Claude to type in `sticky done`. Retry on the rare clash. |
+| Where notes live | `~/.sticky-notes/<project-key>/<id>.json`, with `STICKY_NOTES_HOME` to move it (tests use it) | Outside the repo, so nothing shows up in `git status`. Key = project path with non-letters/digits turned into `-`, the same way `~/.claude/projects/` names folders. |
+| What "project" means | git root of `CLAUDE_PROJECT_DIR` (MCP, hooks) or of cwd (CLI); the folder itself outside git | One rule for every door, so Claude started in `src/` and `sticky` run from the repo root see the same board. |
+| Note shape | `v: 1` plus the fields in `src/types.ts` below | `v` lets a later shape be read side by side with old files. |
+| Chat notes | `scope: "chat"` + `session` = Claude Code session id | Session ids come from `CLAUDE_CODE_SESSION_ID`, which Claude Code sets for Bash, hooks and MCP servers. |
+
+<Callout tone="warn" title="The MCP server's session id goes stale">
+Claude Code docs: an MCP server process "retains the ID it was spawned with", so after `/clear` (and sometimes `--continue`) its `CLAUDE_CODE_SESSION_ID` is the old chat's id. Bash and hooks get the new id. The mod fixes this by stamping `session: $.session.id()` onto every note tool call before it runs. Without the mod (other MCP apps, mods off), chat notes pinned after `/clear` land on the old id and only show in `sticky ls --all`. Project notes are not affected.
+</Callout>
+
+## Files
+
+| Path | What it is |
+| :- | :- |
+| `.claude-plugin/plugin.json` | Manifest: name, version, `types`, and the `notes` MCP server inline |
+| `.claude-plugin/marketplace.json` | One entry with `source: "./"`, so the repo installs with `/plugin` |
+| `src/types.ts` | `Note`, `Kind`, `Scope`. No imports, so the mod can import it (mods may only import local files and `claude-code`, not `zod`) |
+| `src/note.ts` | zod schema, tied to `Note` with `satisfies` so the two can't drift |
+| `src/store.ts` | Project root, file paths, list / add / update / delete |
+| `src/mcp.ts` | The 4 MCP tools on `McpServer` over stdio |
+| `src/cli.ts` | Entry for `dist/sticky.js`: `add`, `ls`, `done`, `edit`, `rm`, `context`, `mcp`. Uses `node:util` `parseArgs`, no CLI library |
+| `src/store.test.ts` | `node:test` tests against a temp `STICKY_NOTES_HOME` |
+| `bin/sticky` | 2-line shell shim to `dist/sticky.js`, committed with the exec bit. Claude Code puts plugin `bin/` on the Bash tool's PATH |
+| `dist/sticky.js` | esbuild bundle of `src/cli.ts`, committed so installs need no `npm install` |
+| `hooks/hooks.json` | `modules: ["./pane.ts"]` and the `SessionStart` hook |
+| `hooks/pane.ts` | The mod: pane, `/notes`, session stamp |
+| `hooks/pane.test.ts` | `claude plugin test`: stamp adds the session, pane draws notes |
+| `hooks/tsconfig.json` | Extends the generated `.claude-plugin/types/tsconfig.json`, so the mod is type-checked against this Claude Code build. The root `tsconfig.json` covers `src/` only |
+| `types/index.d.ts` | `PluginState` for the mod's `$.state` values |
+| `skills/note/SKILL.md` | When and how Claude pins. Also runs as `/sticky-notes:note <text>` |
+| `package.json`, `tsconfig.json`, `README.md`, `.gitignore` | Deps: `@modelcontextprotocol/sdk` 1.32, `zod` 4, dev `esbuild`, `typescript`. `.gitignore` adds `node_modules/` and the generated `.claude-plugin/types/` |
+
+## Key files
+
+<Tabs orientation="vertical">
+<Tab label="src/types.ts + src/note.ts">
+<AnnotatedCode
+  file="src/types.ts"
+  lang="ts"
+  annotations={[
+    { lines: "1-2", note: "Plain arrays are the single list of kinds and scopes. zod, the MCP schema, the CLI flags and the pane colors all read these." },
+    { lines: "7", label: "migrations", note: "Bump only with a reader that still accepts v: 1 files." },
+    { lines: "12", note: "Set for every note so the pane can say which chat pinned it. Only used for filtering when scope is chat." }
+  ]}
+  code={`export const KINDS = ['human', 'todo', 'decision', 'remember'] as const
+export const SCOPES = ['project', 'chat'] as const
+export type Kind = (typeof KINDS)[number]
+export type Scope = (typeof SCOPES)[number]
+
+export interface Note {
+  v: 1
+  id: string // "n_" + 5 base36 chars, e.g. "n_k3f9x"
+  text: string // one idea, 1-280 chars
+  kind: Kind
+  scope: Scope
+  session: string | null // Claude Code session that pinned it
+  project: string // git root (or folder) it belongs to
+  done: boolean
+  createdAt: string // ISO 8601
+  updatedAt: string
+}`}
+/>
+<AnnotatedCode
+  file="src/note.ts"
+  lang="ts"
+  annotations={[
+    { lines: "15", label: "no drift", note: "If Note in types.ts gains or changes a field, this line stops compiling until the schema matches." }
+  ]}
+  code={`import { z } from 'zod'
+import { KINDS, SCOPES, type Note } from './types.ts'
+
+export const NoteSchema = z.object({
+  v: z.literal(1),
+  id: z.string().regex(/^n_[a-z0-9]{5}$/),
+  text: z.string().trim().min(1).max(280),
+  kind: z.enum(KINDS),
+  scope: z.enum(SCOPES),
+  session: z.string().nullable(),
+  project: z.string().min(1),
+  done: z.boolean(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+}) satisfies z.ZodType<Note>`}
+/>
+</Tab>
+<Tab label="src/store.ts">
+<AnnotatedCode
+  file="src/store.ts"
+  lang="ts"
+  annotations={[
+    { lines: "10-16", label: "one rule", note: "Every door calls this, so a session started in src/ and the CLI at the repo root share a board." },
+    { lines: "20-27", label: "no lost notes", note: "One file per note means two writers only clash on the same note, and then the last edit wins. The pid in the tmp name keeps two writers from sharing a tmp file. rename is atomic on one disk, so a reader never sees half a note." },
+    { lines: "29-36", note: "A broken or half-copied file is skipped, not fatal. The pane and the context hook keep working." }
+  ]}
+  code={`import { execFileSync } from 'node:child_process'
+import { mkdir, readdir, readFile, rename, writeFile } from 'node:fs/promises'
+import { homedir } from 'node:os'
+import { join } from 'node:path'
+import { NoteSchema } from './note.ts'
+import type { Note } from './types.ts'
+
+const HOME = process.env.STICKY_NOTES_HOME ?? join(homedir(), '.sticky-notes')
+
+export function projectRoot(dir: string): string {
+  try {
+    return execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: dir, encoding: 'utf8' }).trim()
+  } catch {
+    return dir // not a git repo: the folder is the project
+  }
+}
+
+const folder = (project: string) => join(HOME, project.replace(/[^A-Za-z0-9]/g, '-'))
+
+async function save(note: Note): Promise<Note> {
+  const dir = folder(note.project)
+  await mkdir(dir, { recursive: true })
+  const file = join(dir, note.id + '.json')
+  await writeFile(file + '.' + process.pid + '.tmp', JSON.stringify(note, null, 2))
+  await rename(file + '.' + process.pid + '.tmp', file)
+  return note
+}
+
+async function readNote(file: string): Promise<Note | null> {
+  try {
+    const parsed = NoteSchema.safeParse(JSON.parse(await readFile(file, 'utf8')))
+    return parsed.success ? parsed.data : null
+  } catch {
+    return null
+  }
+}
+
+export async function listNotes(project: string, session: string | null, includeDone: boolean): Promise<Note[]> {
+  const dir = folder(project)
+  const names = (await readdir(dir).catch(() => [] as string[])).filter((n) => n.endsWith('.json'))
+  const notes = (await Promise.all(names.map((n) => readNote(join(dir, n))))).filter((n): n is Note => n !== null)
+  return notes
+    .filter((n) => (includeDone || !n.done) && (n.scope === 'project' || n.session === session))
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+}
+
+// addNote, updateNote, deleteNote: build or patch a Note, bump updatedAt, save() or rm()`}
+/>
+</Tab>
+<Tab label="src/mcp.ts">
+<AnnotatedCode
+  file="src/mcp.ts"
+  lang="ts"
+  annotations={[
+    { lines: "8", label: "stamp slot", note: "The mod fills this with the live session id. Other MCP apps leave it empty and the env id is used." },
+    { lines: "16-19", note: "The tool description carries the short when-to-pin rule too, so apps without the skill still pin at the right times." },
+    { lines: "21", note: "outputSchema gives typed structuredContent, which the pane reads through $.mcp.call." }
+  ]}
+  code={`import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { z } from 'zod'
+import { NoteSchema } from './note.ts'
+import { addNote, listNotes, projectRoot } from './store.ts'
+import { KINDS, SCOPES } from './types.ts'
+
+const session = z.string().optional().describe('Filled in automatically. Leave empty.')
+
+export async function startMcp(): Promise<void> {
+  const project = projectRoot(process.env.CLAUDE_PROJECT_DIR ?? process.cwd())
+  const sessionOf = (s: string | undefined) => s ?? process.env.CLAUDE_CODE_SESSION_ID ?? null
+  const server = new McpServer({ name: 'sticky-notes', version: '0.1.0' })
+
+  server.registerTool('note_add', {
+    description:
+      'Pin a short sticky note the user can see beside the chat, so it is not lost in a long talk. ' +
+      'Pin when a decision is made, a rule or preference is stated, work is pushed to later, or a question is left open. ' +
+      'One idea per note. scope "chat" if it only matters in this conversation.',
+    inputSchema: { text: z.string().min(1).max(280), kind: z.enum(KINDS).default('todo'), scope: z.enum(SCOPES).default('project'), session },
+    outputSchema: { note: NoteSchema },
+  }, async (args) => {
+    const note = await addNote({ project, ...args, session: sessionOf(args.session) })
+    return { content: [{ type: 'text', text: note.id + ' pinned' }], structuredContent: { note } }
+  })
+
+  // note_list (readOnlyHint), note_update { id, text?, kind?, done? }, note_delete { id }: same pattern
+
+  await server.connect(new StdioServerTransport())
+}`}
+/>
+</Tab>
+<Tab label="hooks/pane.ts">
+<AnnotatedCode
+  file="hooks/pane.ts"
+  lang="ts"
+  annotations={[
+    { lines: "1-2", note: "Allowed imports only: claude-code helpers and a local file with no imports of its own." },
+    { lines: "8-11", label: "one read path", note: "The mod asks its own MCP server instead of reading files, so zod and the store stay the only parser. Exact $.mcp.call shape is checked in step 0." },
+    { lines: "21-26", label: "session stamp", note: "Runs before every note tool call, Claude's or a subagent's. Then redraws. Only note_add opens the pane, without taking the keyboard, so a pane you hid stays hidden when Claude just lists." },
+    { lines: "28-30", note: "/clear, /resume and /branch reset $.state, and session.start does not fire again." }
+  ]}
+  code={`import { atom, read, update } from 'claude-code'
+import { type Kind, type Note } from '../src/types.ts'
+
+const PANE = 'sticky-notes'
+const notes = atom({ plugin: 'sticky-notes', key: 'notes' }, [] as Note[])
+const COLOR: Record<Kind, string> = { todo: 'yellow', decision: 'green', remember: 'cyan', question: 'magenta' }
+
+async function refresh($) {
+  const res = await $.mcp.call({ server: 'notes', tool: 'note_list', input: { session: $.session.id(), includeDone: true } })
+  await update($, notes, () => res.structuredContent.notes)
+}
+
+export function register(on) {
+  on('session.start', async ($, e, next) => {
+    await refresh($)
+    $.clock.every(3000, () => refresh($)) // CLI edits and other sessions
+    await $.command.register({ name: 'notes', description: 'Show or hide sticky notes' })
+    return next(e)
+  })
+
+  on('tool.call', { tool: /^mcp__plugin_sticky-notes_notes__/ }, async ($, e, next) => {
+    const result = await next({ ...e, session: $.session.id() })
+    await refresh($)
+    if (e.tool.endsWith('__note_add')) await $.ui.open({ id: PANE, title: 'Sticky notes' })
+    return result
+  })
+
+  on('classic.SessionStart', { source: ['clear', 'resume', 'fork'] }, async ($, e, next) => {
+    await refresh($)
+    return next(e)
+  })
+
+  // command.run { command: 'notes' }: $.ui.open / $.ui.close
+  // ui.render { component: 'Pane' }: read($, notes), group into This chat / Project,
+  //   one Box per note (borderStyle 'quote', borderColor COLOR[kind]), Buttons done / undo / delete
+  //   that call note_update / note_delete through $.mcp.call, then refresh($)
+}`}
+/>
+</Tab>
+<Tab label="skills/note/SKILL.md">
+<AnnotatedCode
+  file="skills/note/SKILL.md"
+  lang="md"
+  annotations={[
+    { lines: "3", label: "fires on its own", note: "The description is what makes Claude load the skill without being asked, so it lists the moments, not the feature." },
+    { lines: "13", note: "Keeps the board from turning into a log." },
+    { lines: "16", note: "Same notes when MCP is missing, e.g. a subagent without the server." }
+  ]}
+  code={`---
+name: note
+description: Pin a sticky note so a decision, rule, todo or open question is not lost in a long chat. Use on your own, without being asked, when the user makes a decision, states a rule or preference, pushes work to later, or leaves a question open. Also use on "note that", "remember", "pin", "don't forget", "later".
+argument-hint: [what to pin]
+---
+
+If $ARGUMENTS is set, pin exactly that and stop.
+
+- One idea per note, under 120 chars. Todos start with a verb.
+- kind: human (you need the user), todo (work for later), decision (what was chosen), remember (a fact or rule).
+- scope: project if it is true for the repo beyond this talk; chat if it only matters here.
+- Check note_list first and update a note instead of adding a near copy.
+- At most 2 new notes per turn unless the user asks.
+- Mark a note done with note_update the moment the work is done.
+- Say what you pinned in a few words. Do not paste the note list into the reply.
+- No MCP tools? Use Bash: sticky add "text" --kind decision [--chat]`}
+/>
+</Tab>
+<Tab label="plugin.json + hooks.json">
+<AnnotatedCode
+  file=".claude-plugin/plugin.json"
+  lang="json"
+  annotations={[
+    { lines: "7-9", note: "MCP server inline in the manifest, in the exact shape the plugin docs show. One fewer file than .mcp.json." }
+  ]}
+  code={`{
+  "name": "sticky-notes",
+  "version": "0.1.0",
+  "description": "Sticky notes Claude pins while it works: MCP tools, a sticky CLI, a skill, and a pane beside the chat",
+  "author": { "name": "Robert Khayat" },
+  "types": "./types/index.d.ts",
+  "mcpServers": {
+    "notes": { "command": "node", "args": ["\${CLAUDE_PLUGIN_ROOT}/dist/sticky.js", "mcp"] }
+  }
+}`}
+/>
+<AnnotatedCode
+  file="hooks/hooks.json"
+  lang="json"
+  annotations={[
+    { lines: "2", note: "This line is what makes the plugin a mod." },
+    { lines: "4-8", label: "no matcher", note: "Runs on startup, resume, clear, compact and fork. sticky context reads session_id from stdin and prints open project notes plus this chat's notes, capped at 25." }
+  ]}
+  code={`{
+  "modules": ["./pane.ts"],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [{ "type": "command", "command": "\\"\${CLAUDE_PLUGIN_ROOT}\\"/bin/sticky context" }]
+      }
+    ]
+  }
+}`}
+/>
+</Tab>
+</Tabs>
+
+What `sticky ls` prints, and what `sticky context` hands Claude:
+
+```text
+$ sticky ls
+shop-api · 4 open
+  remember  n_p0q1z  staging db is read-only        (this chat)
+  decision  n_8a2kd  keep JWT, no sessions table
+  todo      n_k3f9x  add rate limit to /login
+  human     n_r7c2m  log in to Stripe so I can read the webhook secret
+
+$ echo '{"session_id":"abc","cwd":"/Users/me/code/shop-api"}' | sticky context
+Sticky notes for shop-api. Keep them in mind. Mark a note done with note_update when the work is done.
+- [decision n_8a2kd] keep JWT, no sessions table
+- [todo n_k3f9x] add rate limit to /login
+- [human n_r7c2m] log in to Stripe so I can read the webhook secret
+```
+
+## Steps
+
+- [ ] **0. Check the new mods API (short spike).** Scaffold the manifest, an empty `hooks/pane.ts` and `hooks/hooks.json`, then run `claude --plugin-dir .`. Read the types Claude Code writes to `.claude-plugin/types/claude-code/index.d.ts` and confirm: the `$.mcp.call` signature and result shape, whether `$.session.id()` is sync, that MCP tool args are fields of `e` on `tool.call`, and the setting that keeps the `notes` server out of tool search (docs: mcp "exempt a server from deferral"). Fix the `pane.ts` sketch above to match before step 6.
+- [ ] **1. Core.** `src/types.ts`, `src/note.ts`, `src/store.ts`, with `src/store.test.ts` covering: add/list/update/delete, chat notes hidden from other sessions, git subfolder maps to the repo root, a broken file is skipped, 20 parallel adds keep 20 notes.
+- [ ] **2. CLI.** `src/cli.ts` with `parseArgs`: `add <text> [--kind] [--chat]`, `ls [--all] [--json]`, `done <id>`, `edit <id> <text>`, `rm <id>`, `context`, `mcp`. Session from `CLAUDE_CODE_SESSION_ID`. `npm run build` → `dist/sticky.js` with a `#!/usr/bin/env node` banner. `bin/sticky` shim, `package.json` `bin` for `npm link`.
+- [ ] **3. MCP server.** `src/mcp.ts` with the 4 tools. Try it with `npx @modelcontextprotocol/inspector node dist/sticky.js mcp`.
+- [ ] **4. Context hook.** `sticky context` reads the hook's stdin JSON, prints the notes, exits 0. Wire it in `hooks/hooks.json`.
+- [ ] **5. Skill.** `skills/note/SKILL.md` as above.
+- [ ] **6. Pane mod.** `hooks/pane.ts`, `types/index.d.ts`, `hooks/pane.test.ts`. Run the pane look through `/frontend-design` and `/critique` before calling it done.
+- [ ] **7. Ship.** `plugin.json`, `marketplace.json`, `README.md` (install, other MCP apps, the Claude Code version it was tested on: 2.1.309), `.gitignore`. `claude plugin validate . --strict`.
+
+<Callout tone="warn" title="Risks">
+- **Mods are new.** Events and methods can change between releases. The mod holds no logic, so a break costs the pane only. The README names the tested version.
+- **Auto-opened panes need room.** Claude Code only places a pane the user didn't ask for from 144 columns wide (110 once they've opened it before). In a narrow terminal the user opens it with `/notes`.
+- **Polling.** The pane calls `note_list` every 3 seconds. That reads a few small files, but it is still a timer. It is the only way to see CLI edits, since mods can't watch files.
+- **Committed bundle.** `dist/sticky.js` must be rebuilt before each commit, or installs run old code. `npm run check` runs the build.
+- **Note spam.** If Claude pins too much, the board turns into noise. The skill caps 2 per turn and asks for update over add. Tune the wording after a week of use.
+</Callout>
+
+## Checks
+
+- `npm run check`: `tsc --noEmit` (strict), `node --test src/`, `esbuild` build.
+- `claude plugin validate . --strict`: the hooks line lists `session.start`, `tool.call{tool=...}`, `classic.SessionStart{source=...}`, `command.run{command=notes}`, `ui.render{component=Pane}`.
+- `claude plugin test`: the stamp test fires a `note_add` call and checks `session` was added; the render test checks a note's text and color.
+- **End-to-end smoke** in a fresh repo:
+  1. `mkdir /tmp/shop && cd /tmp/shop && git init`, then `STICKY_NOTES_HOME=/tmp/sn claude --plugin-dir ~/Documents/agentic-sticky-notes` in a terminal at least 144 columns wide.
+  2. Say: *"we're keeping JWT, no sessions table. rate limiting can wait. staging db is read-only, only matters today."* Expect 3 `note_add` rows and the pane with 1 chat note and 2 project notes. `ls /tmp/sn/*/` shows 3 `.json` files.
+  3. In a second terminal: `cd /tmp/shop && STICKY_NOTES_HOME=/tmp/sn ~/Documents/agentic-sticky-notes/bin/sticky done <todo id>`. The todo leaves the pane within 3 seconds.
+  4. `/compact`, then ask *"what did we decide about sessions?"* Claude answers from its context without calling `note_list`.
+  5. `/clear`. The chat note is gone from the pane, the project notes stay. Pin a new chat note and check its file has the new session id.
+  6. Start a second session in `/tmp/shop/src`. It shows the same project notes and none of the first chat's notes.
+
+<QuestionForm
+  title="Open Questions"
+  questions={[
+    {
+      id: "context",
+      type: "single",
+      question: "When should open notes go back into Claude's context?",
+      options: [
+        { label: "Every session start, resume, clear and compact", detail: "Claude always knows the board. Costs about 1-2k tokens per session at the 25-note cap.", recommended: true },
+        { label: "Only after compact", detail: "Cheaper. A brand-new session starts blind until Claude calls note_list." },
+        { label: "Never, Claude calls note_list itself", detail: "Cheapest, but Claude often won't think to check." }
+      ]
+    },
+    {
+      id: "autoopen",
+      type: "single",
+      question: "Should the pane open by itself?",
+      options: [
+        { label: "Yes, when Claude pins a note or a session starts with open notes", detail: "It does not take the keyboard. /notes hides it.", recommended: true },
+        { label: "No, only with /notes", detail: "Quieter, but easy to forget the board exists." }
+      ]
+    },
+    {
+      id: "kinds",
+      type: "single",
+      question: "Keep the 4 note kinds?",
+      options: [
+        { label: "Yes: human, todo, decision, remember", detail: "Colors mean something, and sticky context can sort by kind.", recommended: true },
+        { label: "No kinds, just notes", detail: "Simpler for Claude to call. Every note looks the same." }
+      ]
+    }
+  ]}
+/>

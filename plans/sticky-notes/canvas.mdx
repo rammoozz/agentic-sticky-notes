@@ -1,0 +1,113 @@
+---
+title: Sticky notes pane
+---
+
+<DesignBoard>
+<Section title="Claude Code with the sticky-notes plugin">
+
+<Artboard id="wide" title="1. Wide terminal: pane beside the chat" surface="desktop" x={0} y={0}>
+<Screen html={`<div style="display:flex;flex-direction:column;gap:10px;padding:14px;height:100%;box-sizing:border-box">
+  <div style="display:flex;align-items:center;width:100%;white-space:nowrap"><strong>claude</strong>&nbsp;&nbsp;<small class="wf-muted">~/code/shop-api · main</small><div style="flex:1"></div><small class="wf-muted">Opus 5.5</small></div>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;flex:1;min-height:0">
+    <div style="display:flex;flex-direction:column;gap:10px;min-width:0;overflow:hidden">
+      <p style="margin:0"><strong>&gt;</strong> the token refresh races with logout. keep JWT, no sessions table. rate limiting can wait. staging db is read-only btw</p>
+      <p style="margin:0">● Read <code>src/auth/refresh.ts</code></p>
+      <p style="margin:0">● notes · note_add <small class="wf-muted">decision · project</small></p>
+      <p style="margin:0">● notes · note_add <small class="wf-muted">todo · project</small></p>
+      <p style="margin:0">● notes · note_add <small class="wf-muted">remember · this chat</small></p>
+      <p style="margin:0">Pinned the JWT call, a todo for rate limiting, and the staging note. Fixing the race now: refresh checks the revoked list before it hands out a new token.</p>
+      <p style="margin:0">● Edit <code>src/auth/refresh.ts</code> <small class="wf-muted">+6 -2</small></p>
+      <p style="margin:0">● Bash <code>npm test -- auth</code> <small class="wf-muted">14 passed</small></p>
+    </div>
+    <div class="wf-card" style="display:flex;flex-direction:column;gap:8px;min-width:0">
+      <div style="display:flex;align-items:center;width:100%;white-space:nowrap"><strong>Sticky notes</strong>&nbsp;<span class="wf-pill">4</span><div style="flex:1"></div><small class="wf-muted">/notes</small></div>
+      <small class="wf-muted">THIS CHAT</small>
+      <div style="border-left:4px solid var(--wf-accent);padding:4px 8px;display:flex;flex-direction:column;gap:2px">
+        <small class="wf-muted">REMEMBER · n_p0q1z</small>
+        <span>staging db is read-only</span>
+        <div style="display:flex;gap:12px;white-space:nowrap"><a href="#">done</a><a href="#">delete</a></div>
+      </div>
+      <small class="wf-muted">PROJECT</small>
+      <div style="border-left:4px solid var(--wf-ok);padding:4px 8px;display:flex;flex-direction:column;gap:2px">
+        <small class="wf-muted">DECISION · n_8a2kd</small>
+        <span>keep JWT, no sessions table</span>
+        <div style="display:flex;gap:12px;white-space:nowrap"><a href="#">done</a><a href="#">delete</a></div>
+      </div>
+      <div style="border-left:4px solid var(--wf-warn);padding:4px 8px;display:flex;flex-direction:column;gap:2px">
+        <small class="wf-muted">TODO · n_k3f9x</small>
+        <span>add rate limit to /login</span>
+        <div style="display:flex;gap:12px;white-space:nowrap"><a href="#">done</a><a href="#">delete</a></div>
+      </div>
+      <div style="border-left:4px solid var(--wf-warn);padding:4px 8px;display:flex;flex-direction:column;gap:2px">
+        <small class="wf-muted">NEEDS YOU · n_r7c2m</small>
+        <span>log in to Stripe for the webhook secret</span>
+        <div style="display:flex;gap:12px;white-space:nowrap"><a href="#">done</a><a href="#">delete</a></div>
+      </div>
+      <div style="margin-top:auto;display:flex;align-items:center;width:100%;white-space:nowrap"><small class="wf-muted">2 done</small><div style="flex:1"></div><a href="#">show</a></div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;width:100%;border:1.4px solid var(--wf-line);border-radius:var(--wf-radius);padding:8px 10px;box-sizing:border-box;white-space:nowrap"><strong>&gt;</strong>&nbsp;<span class="wf-muted">ask anything</span><div style="flex:1"></div><small class="wf-muted">accept edits on</small></div>
+</div>`} />
+</Artboard>
+<Annotation targetId="wide" placement="right" title="Claude pins as it works">
+- A note shows in the pane right after `note_add` runs. The tool rows in the chat look like any other MCP call.
+- **This chat** holds notes that only matter in this talk. **Project** holds notes every session in this repo should see. Claude picks per note.
+- Color = kind: needs you, todo, decision, remember. A needs-you note also sends a terminal notification.
+- Wide terminal: pane sits beside the chat. Narrow: Claude Code puts it above the prompt. `/notes` shows or hides it.
+</Annotation>
+
+<Artboard id="done" title="2. Done notes shown" surface="panel" x={0} y={860}>
+<Screen html={`<div style="display:flex;flex-direction:column;gap:8px;padding:14px;height:100%;box-sizing:border-box">
+  <div style="display:flex;align-items:center;width:100%;white-space:nowrap"><strong>Sticky notes</strong>&nbsp;<span class="wf-pill">3</span><div style="flex:1"></div><small class="wf-muted">/notes</small></div>
+  <small class="wf-muted">PROJECT</small>
+  <div style="border-left:4px solid var(--wf-ok);padding:4px 8px;display:flex;flex-direction:column;gap:2px">
+    <small class="wf-muted">DECISION · n_8a2kd</small>
+    <span>keep JWT, no sessions table</span>
+    <div style="display:flex;gap:12px;white-space:nowrap"><a href="#">done</a><a href="#">delete</a></div>
+  </div>
+  <div style="border-left:4px solid var(--wf-warn);padding:4px 8px;display:flex;flex-direction:column;gap:2px">
+    <small class="wf-muted">NEEDS YOU · n_r7c2m</small>
+    <span>log in to Stripe for the webhook secret</span>
+    <div style="display:flex;gap:12px;white-space:nowrap"><a href="#">done</a><a href="#">delete</a></div>
+  </div>
+  <div style="display:flex;align-items:center;width:100%;white-space:nowrap"><small class="wf-muted">DONE · 3</small><div style="flex:1"></div><a href="#">hide</a></div>
+  <div style="border-left:4px solid var(--wf-line);padding:4px 8px;display:flex;flex-direction:column;gap:2px">
+    <small class="wf-muted">TODO · n_k3f9x</small>
+    <span class="wf-muted" style="text-decoration:line-through">add rate limit to /login</span>
+    <div style="display:flex;gap:12px;white-space:nowrap"><a href="#">undo</a><a href="#">delete</a></div>
+  </div>
+  <div style="border-left:4px solid var(--wf-line);padding:4px 8px;display:flex;flex-direction:column;gap:2px">
+    <small class="wf-muted">TODO · n_4hw0e</small>
+    <span class="wf-muted" style="text-decoration:line-through">fix refresh vs logout race</span>
+    <div style="display:flex;gap:12px;white-space:nowrap"><a href="#">undo</a><a href="#">delete</a></div>
+  </div>
+  <div style="border-left:4px solid var(--wf-line);padding:4px 8px;display:flex;flex-direction:column;gap:2px">
+    <small class="wf-muted">REMEMBER · n_p0q1z</small>
+    <span class="wf-muted" style="text-decoration:line-through">staging db is read-only</span>
+    <div style="display:flex;gap:12px;white-space:nowrap"><a href="#">undo</a><a href="#">delete</a></div>
+  </div>
+</div>`} />
+</Artboard>
+<Annotation targetId="done" placement="right" title="Done stays out of the way">
+- Done notes are hidden until you press **show**.
+- **undo** flips a note back to open. **delete** removes the file.
+- Claude marks its own todos done when it finishes them.
+</Annotation>
+
+<Artboard id="empty" title="3. No notes yet" surface="panel" x={760} y={860}>
+<Screen html={`<div style="display:flex;flex-direction:column;gap:10px;padding:14px;height:100%;box-sizing:border-box">
+  <div style="display:flex;align-items:center;width:100%;white-space:nowrap"><strong>Sticky notes</strong>&nbsp;<span class="wf-pill">0</span><div style="flex:1"></div><small class="wf-muted">/notes</small></div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px">
+    <p style="margin:0">No notes for shop-api yet.</p>
+    <p class="wf-muted" style="margin:0">Claude pins what needs you, decisions and todos here as you talk.</p>
+    <p class="wf-muted" style="margin:0">From a terminal: <code>sticky add "text"</code></p>
+  </div>
+</div>`} />
+</Artboard>
+<Annotation targetId="empty" placement="right" title="Empty board">
+- Only seen when you open the pane with `/notes`.
+- The pane opens on its own only when there is something to show.
+</Annotation>
+
+</Section>
+</DesignBoard>
