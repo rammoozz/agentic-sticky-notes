@@ -43,6 +43,7 @@ const BOARD: Note[] = [
 // Stands in for the engine and the notes MCP server beneath the mod.
 function engine(on: Parameters<TestBody>[1], board: Note[]) {
   const calls: { tool: string; args: Record<string, unknown> }[] = []
+  const opened: string[] = []
   on('session.id', () => ({ value: 'S1' }))
   on('mcp.connect', () => ({ value: { isConnected: true, server: SERVER } }))
   on('mcp.call', (_, e) => {
@@ -50,9 +51,13 @@ function engine(on: Parameters<TestBody>[1], board: Note[]) {
     // The shape Claude Code 2.1.309 really returns: the structured result as JSON text.
     return { value: { content: [{ type: 'text', text: JSON.stringify({ notes: board }) }], isError: false } }
   })
-  on('ui.open', () => ({ value: { isPlaced: true } }))
+  on('ui.open', (_, e) => {
+    opened.push(e.id)
+    return { value: { isPlaced: true } }
+  })
+  on('ui.close', () => ({ value: undefined }))
   on('command.register', () => ({ value: { command: 'notes' } }))
-  return calls
+  return { calls, opened }
 }
 
 test('a note tool call gets the live session id, and a human note notifies', async ($, on) => {
@@ -91,7 +96,7 @@ test('the pane shows this chat and the project, what needs you first', async ($,
 })
 
 test('done marks the note through the notes server', async ($, on) => {
-  const calls = engine(on, BOARD)
+  const { calls } = engine(on, BOARD)
   on('session.start', (_, e) => ({ cwd: e.cwd }))
   await $.session.start({ cwd: '/work/shop-api', surface: 'terminal', isInteractive: true })
 
@@ -132,7 +137,7 @@ test('a notes server that is down never stops the session from starting', async 
 })
 
 test('a quick reply answers Claude as the user and checks the note off', async ($, on) => {
-  const calls = engine(on, BOARD)
+  const { calls } = engine(on, BOARD)
   const submitted: { text: string; asUser: boolean }[] = []
   on('prompt.submit', (_, e) => {
     submitted.push({ text: e.text, asUser: 'asUser' in e.origin && e.origin.asUser === true })
@@ -147,4 +152,19 @@ test('a quick reply answers Claude as the user and checks the note off', async (
 
   expect(submitted).toEqual([{ text: 'Re sticky note n_human (log in to Stripe): Done, go on', asUser: true }])
   expect(calls.find((c) => c.tool === 'note_update')?.args).toEqual({ id: 'n_human', done: true, session: 'S1' })
+})
+
+test('close keeps the pane shut for plain notes, but a note that needs you opens it again', async ($, on) => {
+  const { opened } = engine(on, BOARD)
+  on('tool.call', () => ({ result: {} }))
+  on('ui.notify', () => ({ value: { isSent: true, channel: 'kitty' } }))
+
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'close' })
+  await ui.unmount()
+
+  await $.tool.call({ tool: ADD, text: 'add retries', kind: 'todo' })
+  expect(opened).toEqual([])
+  await $.tool.call({ tool: ADD, text: 'approve the deploy', kind: 'human' })
+  expect(opened).toEqual(['sticky-notes'])
 })

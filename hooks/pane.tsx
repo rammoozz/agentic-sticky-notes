@@ -12,6 +12,8 @@ const ADD_TOOL = 'mcp__plugin_sticky-notes_notes__note_add'
 // Bump the shape tag when Note changes: it declines what an older version stored.
 const notes = atom({ plugin: 'sticky-notes', key: 'notes' } as const, [], { shape: 'note-v2' })
 const showDone = atom({ plugin: 'sticky-notes', key: 'showDone' } as const, false)
+// True once the person closes the pane: only a note that needs them opens it again.
+const hidden = atom({ plugin: 'sticky-notes', key: 'hidden' } as const, false)
 
 const LABEL: Record<Kind, string> = {
   human: 'NEEDS YOU',
@@ -75,6 +77,16 @@ async function answer($: EngineInterface, note: Note, reply: string) {
   await setDone($, note.id, true)
 }
 
+async function openPane($: EngineInterface, focus: boolean) {
+  await update($, hidden, () => false)
+  await $.ui.open({ id: PANE, title: 'Sticky notes', closeOnEscape: true, ...(focus ? { focus: true } : {}) })
+}
+
+async function closePane($: EngineInterface) {
+  await update($, hidden, () => true)
+  await $.ui.close({ id: PANE })
+}
+
 async function toggleDone($: EngineInterface) {
   await update($, showDone, (shown) => !shown)
 }
@@ -85,10 +97,10 @@ export const register: Register = (on) => {
     // Picks up notes changed by the CLI or another session: mods can't watch files.
     $.clock.every(3000, () => void refresh($))
     const session = await $.session.id()
-    if (list.some((n) => !n.done && isVisible(n, session))) {
-      void $.ui.open({ id: PANE, title: 'Sticky notes' })
+    if (list.some((n) => !n.done && isVisible(n, session)) && !(await read($, hidden))) {
+      void openPane($, false)
     }
-    await $.command.register({ name: 'notes', description: 'Open the sticky notes pane' })
+    await $.command.register({ name: 'notes', description: 'Show or hide the sticky notes pane' })
     return next(e)
   })
 
@@ -98,11 +110,22 @@ export const register: Register = (on) => {
     return next(e)
   }).catch(($, e, next) => next(e)) // a failed refresh must not hold up the session
 
+  // /notes toggles the pane.
   on('command.run', { command: 'notes' }, async ($) => {
-    await refresh($)
-    await $.ui.open({ id: PANE, title: 'Sticky notes', focus: true, closeOnEscape: true })
+    if ((await $.ui.panes()).some((p) => p.id === PANE)) {
+      await closePane($)
+    } else {
+      await refresh($)
+      await openPane($, true)
+    }
     return {}
   })
+
+  // Closed with its close mark or Esc: remember it, so plain notes don't pop it back up.
+  on('ui.close', { id: PANE }, async ($, e, next) => {
+    if (e.origin.kind === 'person') await update($, hidden, () => true)
+    return next(e)
+  }).catch(($, e, next) => next(e)) // never keep the pane from closing
 
   // The MCP server keeps the session id it was started with, which goes stale
   // after /clear. Stamp the live one onto every note tool call.
@@ -111,8 +134,9 @@ export const register: Register = (on) => {
     const result = await next({ ...e, session: await $.session.id() } as typeof e)
     await refresh($)
     if (e.tool === ADD_TOOL && !result.deny && !result.isError) {
-      void $.ui.open({ id: PANE, title: 'Sticky notes' })
-      if (e.kind === 'human') void $.ui.notify('Needs you: ' + String(e.text), { title: 'Sticky note' })
+      const needsYou = e.kind === 'human'
+      if (needsYou || !(await read($, hidden))) void openPane($, false)
+      if (needsYou) void $.ui.notify('Needs you: ' + String(e.text), { title: 'Sticky note' })
     }
     return result
   }).catch(($, e, next) => next(e)) // fail open: a broken stamp or redraw never blocks a note
@@ -164,10 +188,16 @@ export const register: Register = (on) => {
         </Box>
       )
 
+    const closeButton = <Button key="close" label="close" plain dimColor onPress={() => closePane($)} />
+
     if (all.length === 0) {
       return (
         <Box flexDirection="column" rowGap={1}>
-          <Text>No notes for this project yet.</Text>
+          <Box flexDirection="row">
+            <Text>No notes for this project yet.</Text>
+            <Box flexGrow={1} />
+            {closeButton}
+          </Box>
           <Text dimColor>Claude pins what needs you, decisions and todos here as you talk.</Text>
           <Text dimColor>From a terminal: sticky add "text"</Text>
         </Box>
@@ -176,9 +206,13 @@ export const register: Register = (on) => {
 
     return (
       <Box flexDirection="column">
-        <Text weight="semibold">
-          {open.length} open{needYou > 0 ? ' · ' + needYou + ' need you' : ''}
-        </Text>
+        <Box flexDirection="row">
+          <Text weight="semibold">
+            {open.length} open{needYou > 0 ? ' · ' + needYou + ' need you' : ''}
+          </Text>
+          <Box flexGrow={1} />
+          {closeButton}
+        </Box>
         <Text> </Text>
         {section('THIS CHAT', open.filter((n) => n.scope === 'chat'))}
         {section('PROJECT', open.filter((n) => n.scope === 'project'))}

@@ -1,6 +1,6 @@
 {
   "name": "sticky-notes",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "type": "module",
   "description": "Sticky notes Claude pins while it works: MCP tools, a sticky CLI, a skill, and a pane beside the chat",

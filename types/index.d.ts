@@ -22,6 +22,6 @@ export interface Note {
 
 declare module 'claude-code' {
   interface PluginState {
-    'sticky-notes': { notes: Shaped<Note[]>; showDone: boolean }
+    'sticky-notes': { notes: Shaped<Note[]>; showDone: boolean; hidden: boolean }
   }
 }
